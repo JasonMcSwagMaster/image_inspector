@@ -11,6 +11,10 @@ class Window(QMainWindow):
         def __init__(self):
             super().__init__()
 
+
+
+
+
             title = "Image Inspector"
             top = 400
             left = 400
@@ -21,6 +25,11 @@ class Window(QMainWindow):
             self.setGeometry(top, left, width, height)
 
             self.MyUI()
+            self.LoadDataFromFile()
+
+
+
+
 
         def MyUI(self):
             canvas = Canvas(self, width = 8, height = 4)
@@ -55,8 +64,10 @@ class Canvas(FigureCanvas):
                             [1.3, 1.2, 0.0, 0.0, 0.0, 3.2, 5.1],
                             [0.1, 2.0, 0.0, 1.4, 0.0, 1.9, 6.3]])
 
+        data = LoadDataFromFile(self)
+
         fig, ax = plt.subplots()
-        im = ax.imshow(concentrations)
+        im = ax.imshow(data)
 
         cbar = ax.figure.colorbar(im, ax=ax)
         cbar.ax.set_ylabel("test", rotation=-90, va="bottom")
@@ -74,6 +85,25 @@ class Canvas(FigureCanvas):
        # labels = ["Apples", "Bananas", "Melons"]
        # ax = self.figure.add_subplot(111)
        # ax.pie(x, labels=labels)
+
+# This is where the data is loaded in from the binary file
+# For reference this file is loaded in as floats and being
+# Such this file will be read in 32 bits at a time as these
+# Are 4 byte floats
+
+def LoadDataFromFile(self):
+    filepath = "D:/com/byu/resource/data/Brain2/brain_2.bin"
+    f = open(filepath, 'rb')
+    data = np.fromfile(f, '<f4')
+    sizeX = data(1)
+    sizeY = data(2)
+    sizeZ = data(3)
+    sizeImg = sizeX*sizeY*sizeZ
+    img = np.reshape(data(4, 4+sizeImg-1), [sizeZ, sizeX, sizeY])
+    imgX = np.reshape(data(4+sizeImg, 3+sizeImg+sizeX), [1, sizeX])
+    imgY = np.reshape(data(4+sizeImg+sizeX, 3+sizeImg+sizeX+sizeY), [1, sizeY])
+    imgZ = np.reshape(data(4+sizeImg+sizeX+sizeY, 3+sizeImg+sizeX+sizeY+sizeZ), [sizeZ, 1])
+    return data
 
 app = QApplication(sys.argv)
 window = Window()
